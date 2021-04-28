@@ -851,7 +851,7 @@ def call_prepare_scriptable_func(obj):
     memo: Dict[int, torch.nn.Module] = {}
     return call_prepare_scriptable_func_impl(obj, memo)
 
-def _script_pdt(obj, optimize=None, _frames_up=0, _rcb=None, example_inputs: Optional[List[Tuple]] = None):
+def _script_pdt(obj, optimize=None, _frames_up=0, _rcb=None, example_inputs: Optional[List[Tuple]] = None):  # type: ignore[union-attr]
     # This is a private API, intended for internal use only. Usage of this API is only for experimental
     # purposes only and is highly discouraged.
     global type_trace_db
@@ -877,7 +877,7 @@ def _script_pdt(obj, optimize=None, _frames_up=0, _rcb=None, example_inputs: Opt
     if monkeytype_trace:
         monkeytype_config = JitTypeTraceConfig(type_trace_db)
         with monkeytype_trace(monkeytype_config):
-            for example_input in example_inputs:
+            for example_input in example_inputs:    # type: ignore[union-attr]
                 # If the obj is an nn.Module or a class, then each method is
                 # executed with the arguments provided in the example inputs.
                 # example inputs here will be of tuple(class.method, (arguments))
@@ -889,7 +889,6 @@ def _script_pdt(obj, optimize=None, _frames_up=0, _rcb=None, example_inputs: Opt
                             module(*example)
                 else:
                     obj(*example_input)
-        print(type_trace_db.trace_records)
     else:
         warnings.warn("Warning: monkeytype is not installed. Please install https://github.com/Instagram/MonkeyType "
                       "to enable Profile-Directed Typing in TorchScript. Refer to "
