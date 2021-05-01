@@ -835,6 +835,50 @@ void apply_lu_cusolver_looped(Tensor& self, Tensor& pivots, Tensor& infos, bool 
     int batch_size = cuda_int_cast(batchCount(self), "batch size");
     auto handle = at::cuda::getCurrentCUDASolverDnHandle();
 
+#ifdef USE_CUSOLVER_64_BIT
+    int64_t m = self.size(-2);
+    int64_t n = self.size(-1);
+    int64_t lda = std::max<int64_t>(1, n);
+    cusolverDnParams_t params;
+    size_t workspaceInBytesOnDevice, workspaceInBytesOnHost;
+
+    cudaDataType datatype = at::cuda::solver::get_cusolver_datatype<scalar_t>();
+    TORCH_CUSOLVER_CHECK(cusolverDnCreateParams(&params));
+    at::cuda::solver::xgetrf_buffersize(handle, params, m, n, datatype, nullptr, lda, datatype,
+      &workspaceInBytesOnDevice, &workspaceInBytesOnHost);
+
+    auto& device_allocator = *at::cuda::getCUDADeviceAllocator();
+    auto& host_allocator = *at::getCPUAllocator();
+    void* work_device_data = device_allocator.allocate(workspaceInBytesOnDevice).get();
+    void* work_host_data = host_allocator.allocate(workspaceInBytesOnHost).get();
+
+    for (int batch = 0; batch < batch_size; ++batch) {
+      if (get_pivots) {
+        auto pivots_data = pivots.data_ptr<int64_t>();
+        auto pivots_matrix_stride = pivots.size(-1);
+        at::cuda::solver::xgetrf(
+          handle, params, m, n, datatype,
+          self_data + batch * self_stride,
+          lda,
+          pivots_data + batch * pivots_matrix_stride, datatype,
+          work_device_data, workspaceInBytesOnDevice,
+          work_host_data, workspaceInBytesOnHost,
+          infos_data + batch
+        );
+      }
+      else {
+        at::cuda::solver::xgetrf(
+          handle, params, m, n, datatype,
+          self_data + batch * self_stride,
+          lda,
+          NULL, datatype,
+          work_device_data, workspaceInBytesOnDevice,
+          work_host_data, workspaceInBytesOnHost,
+          infos_data + batch
+        );
+      }
+    }
+#else
     int m = cuda_int_cast(self.size(-2), "m");
     int n = cuda_int_cast(self.size(-1), "n");
     int lda = std::max<int>(1, m);
@@ -860,6 +904,7 @@ void apply_lu_cusolver_looped(Tensor& self, Tensor& pivots, Tensor& infos, bool 
         );
       }
     }
+#endif
   });
 
   // Necessary because cuSOLVER uses nan for outputs that correspond to 0 in MAGMA.

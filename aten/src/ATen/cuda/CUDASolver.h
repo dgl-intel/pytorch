@@ -452,28 +452,21 @@ template <>
 void xgeqrf_bufferSize<c10::complex<double>>(
     CUDASOLVER_XGEQRF_BUFFERSIZE_ARGTYPES(c10::complex<double>));
 
-#define CUDASOLVER_XGETRF_ARGTYPES(scalar_t) \
+#define CUDASOLVER_XGETRF_BUFFERSIZE_ARGTYPES \
+    cusolverDnHandle_t handle, cusolverDnParams_t params, int64_t m, int64_t n, \
+    cudaDataType dataTypeA, const void *A, int64_t lda, cudaDataType computeType, \
+    size_t *workspaceInBytesOnDevice, size_t *workspaceInBytesOnHost
+
+void xgetrf_buffersize(CUDASOLVER_XGETRF_BUFFERSIZE_ARGTYPES);
+
+#define CUDASOLVER_XGETRF_ARGTYPES \
     cusolverDnHandle_t handle, cusolverDnParams_t params, int64_t m, \
-    int64_t n, scalar_t *A, int64_t lda, int64_t *ipiv, int *info
+    int64_t n, cudaDataType dataTypeA, void *A, int64_t lda, \
+    int64_t *ipiv, cudaDataType computeType, void *workspace_device, \
+    size_t workspaceInBytesOnDevice, void *workspace_host, \
+    size_t workspaceInBytesOnHost, int *info
 
-template<class scalar_t>
-void xgetrf(CUDASOLVER_XGETRF_ARGTYPES(scalar_t)) {
-    TORCH_INTERNAL_ASSERT(
-        false,
-        "at::cuda::solver::xgetrf: not implemented for ",
-        typeid(scalar_t).name());
-}
-
-template<>
-void xgetrf<float>(CUDASOLVER_XGETRF_ARGTYPES(float));
-template<>
-void xgetrf<double>(CUDASOLVER_XGETRF_ARGTYPES(double));
-template<>
-void xgetrf<c10::complex<float>>(
-    CUDASOLVER_XGETRF_ARGTYPES(c10::complex<float>));
-template<>
-void xgetrf<c10::complex<double>>(
-    CUDASOLVER_XGETRF_ARGTYPES(c10::complex<double>));
+void xgetrf(CUDASOLVER_XGETRF_ARGTYPES);
 
 #define CUDASOLVER_XGEQRF_ARGTYPES(scalar_t)                                  \
   cusolverDnHandle_t handle, cusolverDnParams_t params, int64_t m, int64_t n, \
