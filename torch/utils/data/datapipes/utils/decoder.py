@@ -4,10 +4,8 @@
 import io
 import os
 import pickle
-import re
 import tempfile
 
-import json
 import torch
 
 
@@ -16,9 +14,7 @@ import torch
 ################################################################
 
 
-def basichandlers(key, data):
-
-    extension = re.sub(r".*[.]", "", key)
+def basichandlers(extension, data):
 
     if extension in "txt text transcript":
         return data.decode("utf-8")
@@ -30,6 +26,7 @@ def basichandlers(key, data):
             return None
 
     if extension in "json jsn":
+        import json
         return json.loads(data)
 
     if extension in "pyd pickle".split():
@@ -131,8 +128,7 @@ class ImageHandler:
         assert imagespec in list(imagespecs.keys()), "unknown image specification: {}".format(imagespec)
         self.imagespec = imagespec.lower()
 
-    def __call__(self, key, data):
-        extension = re.sub(r".*[.]", "", key)
+    def __call__(self, extension, data):
         if extension.lower() not in "jpg jpeg png ppm pgm pbm pnm".split():
             return None
 
@@ -185,8 +181,7 @@ def imagehandler(imagespec):
 ################################################################
 
 
-def torch_video(key, data):
-    extension = re.sub(r".*[.]", "", key)
+def torch_video(extension, data):
     if extension not in "mp4 ogv mjpeg avi mov h264 mpg webm wmv".split():
         return None
 
@@ -209,8 +204,7 @@ def torch_video(key, data):
 ################################################################
 
 
-def torch_audio(key, data):
-    extension = re.sub(r".*[.]", "", key)
+def torch_audio(extension, data):
     if extension not in ["flac", "mp3", "sox", "wav", "m4a", "ogg", "wma"]:
         return None
 
@@ -228,12 +222,30 @@ def torch_audio(key, data):
             return torchaudio.load(fname)
 
 
+################################################################
+# mat
+################################################################
+class MatHandler:
+    def __init__(self, **loadmat_kwargs) -> None:
+        try:
+            import scipy.io as sio
+        except ImportError as e:
+            raise ModuleNotFoundError("Package `scipy` is required to be installed for mat file."
+                                      "Please use `pip install scipy` or `conda install scipy`"
+                                      "to install the package")
+        self.sio = sio
+        self.loadmat_kwargs = loadmat_kwargs
+
+    def __call__(self, extension, data):
+        if extension != 'mat':
+            return None
+        with io.BytesIO(data) as stream:
+            return self.sio.loadmat(stream, **self.loadmat_kwargs)
+
 
 ################################################################
 # a sample decoder
 ################################################################
-
-
 class Decoder:
     """
     Decode key/data sets using a list of handlers.
@@ -241,16 +253,16 @@ class Decoder:
     handlers until some handler returns something other than None.
     """
 
-    def __init__(self, handlers):
-        self.handlers = handlers
+    def __init__(self, handlers, key_fn):
+        self.handlers = list(handlers) if len(handlers) > 0 else []
+        self.key_fn = key_fn
 
+    # Add from the beginning of the handlers to make sure the added
+    # handler having highest priority
     def add_handler(self, handler):
         if not handler:
             return
-        if not self.handlers:
-            self.handlers = [handler]
-        else:
-            self.handlers.append(handler)
+        self.handlers = [handler] + self.handlers
 
     def decode1(self, key, data):
         if not data:
@@ -280,7 +292,7 @@ class Decoder:
                         v = v.decode("utf-8")
                         result[k] = v
                         continue
-                result[k] = self.decode1(k, v)
+                result[k] = self.decode1(self.key_fn(k), v)
         return result
 
     def __call__(self, data):
