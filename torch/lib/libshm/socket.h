@@ -28,7 +28,7 @@ protected:
 
   virtual ~Socket() {
     if (socket_fd != -1)
-      close(socket_fd);
+      SYSCHECK_ERR_RETURN_NEG1(close(socket_fd));
   }
 
   struct sockaddr_un prepare_address(const char *path) {
@@ -38,8 +38,9 @@ protected:
     return address;
   }
 
+  // Implemented based on https://man7.org/linux/man-pages/man7/unix.7.html
   size_t address_length(struct sockaddr_un address) {
-    return strlen(address.sun_path) + sizeof(address.sun_family);
+    return offsetof(sockaddr_un, sun_path) + strlen(address.sun_path) + 1;
   }
 
   void recv(void *_buffer, size_t num_bytes) {
@@ -112,7 +113,7 @@ public:
   }
 
   virtual ~ManagerServerSocket() {
-    unlink(socket_path.c_str());
+    SYSCHECK_ERR_RETURN_NEG1(unlink(socket_path.c_str()));
   }
 
   ManagerSocket accept() {
