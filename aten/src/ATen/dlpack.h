@@ -44,6 +44,7 @@ typedef enum {
   kDLMetal = 8,
   kDLVPI = 9,
   kDLROCM = 10,
+  kDLXPU=13,
 } DLDeviceType;
 
 /*!

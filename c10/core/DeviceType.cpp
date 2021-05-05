@@ -11,6 +11,8 @@ std::string DeviceTypeName(DeviceType d, bool lower_case) {
       return lower_case ? "cpu" : "CPU";
     case DeviceType::CUDA:
       return lower_case ? "cuda" : "CUDA";
+    case DeviceType::XPU:
+      return lower_case ? "xpu" : "XPU";
     case DeviceType::OPENGL:
       return lower_case ? "opengl" : "OPENGL";
     case DeviceType::OPENCL:
@@ -62,6 +64,7 @@ bool isValidDeviceType(DeviceType d) {
     case DeviceType::MSNPU:
     case DeviceType::XLA:
     case DeviceType::Vulkan:
+    case DeviceType::XPU:
       return true;
     default:
       return false;

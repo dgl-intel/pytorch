@@ -595,6 +595,12 @@ inline DispatchKey computeDispatchKey(c10::optional<ScalarType> dtype, c10::opti
             }
             return DispatchKey::CUDA;
           }
+          case DeviceType::XPU: {
+            if (isQIntType(dtype_)) {
+              return DispatchKey::QuantizedXPU;
+            }
+            return DispatchKey::XPU;
+          }
           case DeviceType::MKLDNN:
             return DispatchKey::MKLDNN;
           case DeviceType::OPENGL:
@@ -623,6 +629,8 @@ inline DispatchKey computeDispatchKey(c10::optional<ScalarType> dtype, c10::opti
             return DispatchKey::SparseCPU;
           case DeviceType::CUDA:
             return DispatchKey::SparseCUDA;
+          case DeviceType::XPU:
+            return DispatchKey::SparseXPU;
           case DeviceType::HIP:
             return DispatchKey::SparseHIP;
           default:
@@ -647,6 +655,8 @@ inline DeviceType computeDeviceType(DispatchKey tid) {
     return DeviceType::CPU;
   } else if (tid == DispatchKey::CUDA) {
     return DeviceType::CUDA;
+  } else if (tid == DispatchKey::XPU) {
+    return DeviceType::XPU;
   } else if (tid == DispatchKey::HIP) {
     return DeviceType::HIP;
   } else if (tid == DispatchKey::FPGA) {
@@ -669,6 +679,8 @@ inline DeviceType computeDeviceType(DispatchKey tid) {
     return DeviceType::CPU;
   } else if (tid == DispatchKey::SparseCUDA) {
     return DeviceType::CUDA;
+  } else if (tid == DispatchKey::SparseXPU) {
+    return DeviceType::XPU;
   } else if (tid == DispatchKey::SparseHIP) {
     return DeviceType::HIP;
   } else if (tid == DispatchKey::MkldnnCPU) {

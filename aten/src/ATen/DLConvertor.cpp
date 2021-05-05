@@ -72,6 +72,9 @@ DLContext getDLContext(const Tensor& tensor, const int64_t& device_id) {
   DLContext ctx;
   ctx.device_id = device_id;
   switch (tensor.device().type()) {
+    case DeviceType::XPU:
+      ctx.device_type = DLDeviceType::kDLXPU;
+      break;
     case DeviceType::CPU:
       ctx.device_type = DLDeviceType::kDLCPU;
       break;
@@ -98,6 +101,8 @@ DLContext getDLContext(const Tensor& tensor, const int64_t& device_id) {
 
 static Device getATenDevice(const DLContext& ctx) {
   switch (ctx.device_type) {
+    case DLDeviceType::kDLXPU:
+      return at::Device(DeviceType::XPU);
     case DLDeviceType::kDLCPU:
       return at::Device(DeviceType::CPU);
 #ifndef USE_ROCM

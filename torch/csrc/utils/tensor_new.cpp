@@ -51,6 +51,8 @@ Backend backendToBackendOfDeviceType(Backend b, DeviceType d) {
       return backendToCPU(b);
     case DeviceType::CUDA:
       return backendToCUDA(b);
+    case DeviceType::XPU:
+      return backendToXPU(b);
     case DeviceType::HIP:
       return backendToHIP(b);
     case DeviceType::MSNPU:
@@ -336,10 +338,12 @@ void check_base_legacy_new(c10::DispatchKey dispatch_key, at::Layout expected_la
   if (expected_layout == c10::kStrided) {
     TORCH_CHECK(dispatch_key == c10::DispatchKey::CPU
                 || dispatch_key == c10::DispatchKey::CUDA
+                || dispatch_key == c10::DispatchKey::XPU
                 || dispatch_key == c10::DispatchKey::HIP
                 || dispatch_key == c10::DispatchKey::XLA,
                 "new(): expected DispatchKey: ", c10::DispatchKey::CPU,
                 " or ", c10::DispatchKey::CUDA,
+                " or ", c10::DispatchKey::XPU,
                 " or ", c10::DispatchKey::HIP,
                 " or ", c10::DispatchKey::XLA,
                 " but got: ", dispatch_key);
@@ -347,9 +351,11 @@ void check_base_legacy_new(c10::DispatchKey dispatch_key, at::Layout expected_la
     // NOTE: no sparse XLA
     TORCH_CHECK(dispatch_key == c10::DispatchKey::SparseCPU
                 || dispatch_key == c10::DispatchKey::SparseCUDA
+                || dispatch_key == c10::DispatchKey::SparseXPU
                 || dispatch_key == c10::DispatchKey::SparseHIP,
                 "new(): expected DispatchKey: ", c10::DispatchKey::SparseCPU,
                 " or ", c10::DispatchKey::SparseCUDA,
+                " or ", c10::DispatchKey::SparseXPU,
                 " or ", c10::DispatchKey::SparseHIP,
                 " but got: ", dispatch_key);
   } else {

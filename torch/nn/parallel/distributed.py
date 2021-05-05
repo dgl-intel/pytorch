@@ -354,7 +354,7 @@ class DistributedDataParallel(Module):
         ).format(distinct_device_types)
         self.device_type = list(distinct_device_types)[0]
 
-        if self.device_type == "cpu" or self.is_multi_device_module:
+        if self.device_type == "cpu" or self.device_type == "xpu" or self.is_multi_device_module:
             assert not device_ids and not output_device, (
                 "DistributedDataParallel device_ids and output_device arguments "
                 "only work with single-device GPU modules, but got "

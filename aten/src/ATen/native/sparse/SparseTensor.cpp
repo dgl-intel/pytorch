@@ -76,6 +76,8 @@ SparseTensor new_sparse(const TensorOptions& options) {
   DispatchKey dispatch_key;
   if (options.device().is_cuda()) {
     dispatch_key = DispatchKey::SparseCUDA;
+  } else if (options.device().is_xpu()) {
+    dispatch_key = DispatchKey::SparseXPU;
   } else {
     dispatch_key = DispatchKey::SparseCPU;
   }

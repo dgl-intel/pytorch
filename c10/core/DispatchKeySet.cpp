@@ -14,12 +14,14 @@ constexpr DispatchKeySet autogradother_backends = DispatchKeySet({
   DispatchKey::IDEEP,
   DispatchKey::QuantizedCPU,
   DispatchKey::QuantizedCUDA,
+  DispatchKey::QuantizedXPU,
   DispatchKey::ComplexCPU,
   DispatchKey::ComplexCUDA,
   DispatchKey::CustomRNGKeyId,
   DispatchKey::MkldnnCPU,
   DispatchKey::SparseCPU,
   DispatchKey::SparseCUDA,
+  DispatchKey::SparseXPU,
   DispatchKey::SparseHIP,
 });
 
@@ -28,6 +30,7 @@ constexpr DispatchKeySet backend_dispatch_keyset = autogradother_backends | Disp
   DispatchKey::CPU,
   DispatchKey::CUDA,
   DispatchKey::XLA,
+  DispatchKey::XPU,
   DispatchKey::PrivateUse1,
   DispatchKey::PrivateUse2,
   DispatchKey::PrivateUse3,
@@ -55,6 +58,8 @@ DispatchKeySet getBackendKeySetFromAutograd(DispatchKey t) {
       return DispatchKeySet(DispatchKey::CPU);
     case DispatchKey::AutogradCUDA:
       return DispatchKeySet(DispatchKey::CUDA);
+    case DispatchKey::AutogradXPU:
+      return DispatchKeySet(DispatchKey::XPU);
     case DispatchKey::AutogradXLA:
       return DispatchKeySet(DispatchKey::XLA);
     case DispatchKey::AutogradPrivateUse1:

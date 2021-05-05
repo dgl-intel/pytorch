@@ -23,6 +23,10 @@ Tensor Tensor::cuda() const {
   return to(options().device(DeviceType::CUDA), /*non_blocking*/ false, /*copy*/ false);
 }
 
+Tensor Tensor::xpu() const {
+  return to(options().device(DeviceType::XPU), /*non_blocking*/ false, /*copy*/ false);
+}
+
 Tensor Tensor::hip() const {
   return to(options().device(DeviceType::HIP), /*non_blocking*/ false, /*copy*/ false);
 }

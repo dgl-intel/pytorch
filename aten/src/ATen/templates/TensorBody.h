@@ -445,6 +445,7 @@ class CAFFE2_API Tensor {
 
   Tensor cpu() const;
   Tensor cuda() const;
+  Tensor xpu() const;
   Tensor hip() const;
   Tensor vulkan() const;
 

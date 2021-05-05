@@ -60,6 +60,7 @@ enum class DispatchKey : uint8_t {
          // test/cpp_extensions/msnpu_extension.cpp
   XLA, // lives out of tree at https://github.com/pytorch/xla
   Vulkan,
+  XPU, // For out of tree Intel's heterogeneous computing plug-in
 
   // These are Caffe2 device types which we grandfathered into
   // DispatchKey.
@@ -74,6 +75,7 @@ enum class DispatchKey : uint8_t {
   // based on the dtype of the tensor.
   QuantizedCPU, // registered at build/aten/src/ATen/QuantizedCPUType.cpp
   QuantizedCUDA, // registered at build/aten/src/ATen/QuantizedCUDAType.cpp
+  QuantizedXPU, // For out of tree Intel's heterogeneous computing plug-in
   ComplexCPU, // lives out of tree at
               // https://gitlab.com/pytorch-complex/pytorch-cpu-strided-complex
   ComplexCUDA, // and
@@ -102,6 +104,7 @@ enum class DispatchKey : uint8_t {
   SparseCUDA, // registered at build/aten/src/ATen/SparseCUDAType.cpp
   SparseHIP, // TODO: I think this is not actually used, due to Note
              // [Masquerading as CUDA]
+  SparseXPU, // For out of tree Intel's heterogeneous computing plug-in
 
   // Here are reserved backends for user-defined backends, see Note [Private use
   // DispatchKey]
@@ -216,6 +219,7 @@ enum class DispatchKey : uint8_t {
   AutogradCPU,
   AutogradCUDA,
   AutogradXLA,
+  AutogradXPU,
   // Here are some reserved pre-autograd keys for user-defined backends, see
   // Note [Private use DispatchKey]
   AutogradPrivateUse1,
