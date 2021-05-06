@@ -4,6 +4,7 @@
 #include <c10/util/Exception.h>
 #include <c10/util/StringUtil.h>
 #include <torch/csrc/jit/api/module.h>
+#include <torch/csrc/jit/frontend/calculate_necessary_args.h>
 #include <torch/csrc/jit/frontend/error_report.h>
 #include <torch/csrc/jit/frontend/versioned_symbols.h>
 #include <torch/csrc/jit/ir/attributes.h>
@@ -1156,10 +1157,14 @@ struct PythonPrintImpl {
         printOpName(stmt, node->kind());
         const FunctionSchema& schema = node->schema();
         stmt << "(";
-        for (size_t i = 0; i < node->inputs().size(); ++i) {
-          if (i > 0) {
+        // calculate how many args are specified.
+        // see (https://github.com/pytorch/pytorch/pull/56079) for more
+        // details.
+        size_t necessary_args =
+            CalculateNecessaryArgs(schema.arguments(), node->inputs());
+        for (size_t i = 0; i < necessary_args; ++i) {
+          if (i > 0)
             stmt << ", ";
-          }
           auto v = useOf(node->inputs().at(i));
           // print the kwarg name if it is a kwarg only argument.
           if (i < schema.arguments().size()) {
