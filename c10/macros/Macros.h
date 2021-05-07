@@ -222,15 +222,9 @@ using namespace c10::hip;
 #define C10_ALWAYS_INLINE inline
 #endif
 
-#ifdef _MSC_VER
+// C10_FALLTHROUGH - Annotate fallthrough to the next case in a switch statement.
+// TODO: Causing weird build failures on MSVC, so not enabled
 #define C10_FALLTHROUGH
-#elif C10_HAS_CPP_ATTRIBUTE(fallthrough)
-#define C10_FALLTHROUGH [[fallthrough]]
-#elif C10_HAS_ATTRIBUTE(fallthrough)
-#define C10_FALLTHROUGH __attribute__((fallthrough))
-#else
-#define C10_FALLTHROUGH
-#endif
 
 #include <sstream>
 #include <string>
