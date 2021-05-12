@@ -592,7 +592,7 @@ class TestProfiler(TestCase):
         with profile() as prof:
             torch.add(t1, t2)
             prof.add_metadata("test_key1", "test_value1")
-            prof.add_metadata("test_key2", "test_value2")
+            prof.add_metadata_json("test_key2", "\"test_value2\"")
 
         with TemporaryFileName(mode="w+") as fname:
             prof.export_chrome_trace(fname)
