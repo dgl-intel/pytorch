@@ -2,6 +2,7 @@
 
 #include <c10/util/Optional.h>
 
+#include <c10/macros/Export.h>
 #include <memory>
 #include <unordered_map>
 
